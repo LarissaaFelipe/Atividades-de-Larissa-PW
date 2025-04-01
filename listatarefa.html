@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Alunos</title>
+    <style>
+        body{font-family: Arial, Helvetica, sans-serif; text-align: center;}
+        ul {list-style-type: none; padding: 0;}
+        li{margin: 5px 0; padding: 10px; border: 1px solid #ddd; cursor: pointer; display: flex; justify-content: space-between; align-content: center;}
+        .concluida {text-decoration: line-through; color: gray;}
+    </style>
+</head>
+<body>
+<h2> LISTA DE ALUNOS</h2>
+<input type="text" id="tarefaInput" placeholder="Digite um aluno">
+<button onclick="AdicionarTarefa()">Adicionar</button>
+<button onclick="limparTarefas()">Limpar Tudo</button>
+<ul id="listaTarefas"></ul>
+
+<script>
+    document.addEventListener("DOMContentLoaded", carregarTarefas);
+
+    function AdicionarTarefa(){
+        let input = document.getElementById("tarefaInput");
+        let texto = input.value.trim();
+        if(texto === "") return;
+
+        let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+        tarefas.push({texto, concluida: false});
+        localStorage.setItem("tarefas", JSON.stringify(tarefas));
+        input.value = "";
+        renderizarTarefas();
+    }
+
+    function carregarTarefas(){
+        renderizarTarefas();
+    }
+
+    function renderizarTarefas(){
+        let lista = document.getElementById("listaTarefas");
+        lista.innerHTML = "";
+        let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+
+        tarefas.forEach((tarefa, index) => {
+            let li = document.createElement("li");
+            li.textContent = tarefa.texto;
+            if(tarefa.concluida) li.classList.add("concluida");
+            li.onclick = function(){
+                tarefas[index].concluida = !tarefas[index].concluida;
+                localStorage.setItem("tarefas", JSON.stringify(tarefas));
+                renderizarTarefas();
+            };
+
+            let btnRemover = document.createElement("button");
+            btnRemover.textContent = "X";
+            btnRemover.onclick = function(event){
+                event.stopPropagation();
+                tarefas.splice(index, 1);
+                localStorage.setItem("tarefas", JSON.stringify(tarefas));
+                renderizarTarefas();
+            };
+            btnRemover.style.marginLeft = "10px";
+            li.appendChild(btnRemover);
+            lista.appendChild(li);
+        });
+    }
+
+    function limparTarefas(){
+     
+        localStorage.removeItem("tarefas");
+        
+        
+        renderizarTarefas();
+    }
+</script>
+</body>
+</html>
